@@ -1,12 +1,13 @@
 import { defineConfig } from "prisma/config";
 
+// Get DATABASE_URL - it should be set in Vercel environment variables
+// During prisma generate, we need a valid URL format even if it's a placeholder
+// The actual connection will validate the URL at runtime in lib/db.ts
 const databaseUrl = process.env.DATABASE_URL;
 
-if (!databaseUrl) {
-  throw new Error(
-    "DATABASE_URL environment variable is not set. Please create a .env file with DATABASE_URL=your_connection_string",
-  );
-}
+// For Vercel deployment: Make sure DATABASE_URL is set in Vercel's Environment Variables
+// Settings > Your Project > Settings > Environment Variables
+// Add DATABASE_URL with your PostgreSQL connection string
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -14,6 +15,9 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: databaseUrl,
+    // Use the URL if available, otherwise use a placeholder
+    // This allows prisma generate to work during build
+    // The real validation happens at runtime in lib/db.ts
+    url: databaseUrl || "postgresql://user:password@localhost:5432/dbname",
   },
 });
